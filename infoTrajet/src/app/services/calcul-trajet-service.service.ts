@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
     
-import { Observable, throwError } from 'rxjs';
+import { Observable, Subject, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 @Injectable({
@@ -10,6 +10,7 @@ import { catchError } from 'rxjs/operators';
 export class CalculTrajetServiceService {
 
   private apiURL = "http://localhost:8000";
+  private parser = new DOMParser();
 
   httpOptions = {
     headers: new HttpHeaders({
@@ -20,7 +21,7 @@ export class CalculTrajetServiceService {
 
   constructor(private httpClient: HttpClient) { }
 
-  tempsTrajet(distanceEnKm: number, vMoyKmH: number, tempsArretMin: number, autonomieEnKm: number): Observable<any> {
+  trajet(distanceEnKm: number, vMoyKmH: number, tempsArretMin: number, autonomieEnKm: number): Observable<any> {
     var body : String = 
     "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:spy=\"spyne.examples.trajet.soap\"> \
       <soapenv:Header/> \
@@ -42,6 +43,16 @@ export class CalculTrajetServiceService {
       catchError(this.errorHandler)
     )
   } 
+
+  tempsTrajet(distanceEnKm: number, vMoyKmH: number, tempsArretMin: number, autonomieEnKm: number) : Observable<number> {
+    var subject = new Subject<number>();
+    this.trajet(distanceEnKm, vMoyKmH, tempsArretMin, autonomieEnKm).subscribe((data: any) =>{
+        let xmlDoc = this.parser.parseFromString(data,"text/xml");
+        subject.next(xmlDoc.getElementsByTagName("tns:tempsTrajetResult")[0].childNodes[0].nodeValue as unknown as number); 
+      }
+    )
+    return subject.asObservable();
+  }
   
   errorHandler(error: { error: { message: string; }; status: any; message: any; }) {
     let errorMessage = '';
