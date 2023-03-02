@@ -6,7 +6,7 @@ import { Observable } from 'rxjs/internal/Observable';
 @Injectable({
   providedIn: 'root'
 })
-export class BornesServiceService {
+export class BorneService {
 
   private apiURL = "https://odre.opendatasoft.com/api/v2/";
 

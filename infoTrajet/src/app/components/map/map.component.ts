@@ -18,6 +18,13 @@ export class MapComponent {
     popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
   });
 
+  private epingleIcon = L.icon({
+    iconUrl: 'assets/images/icons8-epingle-de-carte-96.png',
+    iconSize:     [40, 40], // size of the icon
+    iconAnchor:   [20, 20], // point of the icon which will correspond to marker's location
+    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+  })
+
   private initMap(): void {
     this.map = L.map('map', {
       center: [ 45.64046, 5.8714 ],
@@ -32,16 +39,9 @@ export class MapComponent {
 
     tiles.addTo(this.map);
 
-    var electricIcon = L.icon({
-      iconUrl: 'assets/images/icons8-electric-power-64.png',
-      iconSize:     [40, 40], // size of the icon
-      iconAnchor:   [20, 20], // point of the icon which will correspond to marker's location
-      popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
-    });
+    L.marker([45.64046, 5.8714], {icon: this.electricIcon}).addTo(this.map);
 
-    L.marker([45.64046, 5.8714], {icon: electricIcon}).addTo(this.map);
-
-    L.Marker.prototype.options.icon = electricIcon
+    L.Marker.prototype.options.icon = this.epingleIcon
 
     L.Routing.control({
       waypoints: [

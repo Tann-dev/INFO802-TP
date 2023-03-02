@@ -1,21 +1,43 @@
-<form [formGroup]="formGroup" class="form-map" (ngSubmit)="calculate()">
-    <mat-form-field appearance="fill">
-        <mat-label>Distance en Km</mat-label>
-        <input matInput formControlName="distanceEnKm" type="number">
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-        <mat-label>Vitesse Moyenne en Km/h</mat-label>
-        <input matInput formControlName="vMoyKmH" type="number">
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-        <mat-label>Temps de recharge en min</mat-label>
-        <input matInput formControlName="tempsArretMin" type="number">
-    </mat-form-field>
-    <mat-form-field appearance="fill">
-        <mat-label>Autonomie en Km</mat-label>
-        <input matInput formControlName="autonomieEnKm" type="number">
-    </mat-form-field>
-    <button mat-raised-button color="primary" type="submit">Calculer</button>
+<div class="form-map">
+    <form [formGroup]="formDestination">
+        <mat-form-field appearance="fill">
+            <mat-label>Départ</mat-label>
+            <input (input)="getDepart()" matInput formControlName="depart" type="text">
+        </mat-form-field>
+        <mat-form-field>
+            <mat-select formControlName="valueDepart">
+              <mat-option *ngFor="let place of places" [value]="place">
+                {{ place.display_name}}
+              </mat-option>
+            </mat-select>
+        </mat-form-field>
+          
 
-    <p>{{tempsMinutes || "Aucun trajet saisi"}}</p>
-</form>
+        <mat-form-field appearance="fill">
+            <mat-label>Arrivé</mat-label>
+            <input matInput formControlName="arrivee" type="text">
+        </mat-form-field>
+    </form>
+
+    <form [formGroup]="formTrajet" (ngSubmit)="calculate()">
+        <mat-form-field appearance="fill">
+            <mat-label>Distance en Km</mat-label>
+            <input matInput formControlName="distanceEnKm" type="number">
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+            <mat-label>Vitesse Moyenne en Km/h</mat-label>
+            <input matInput formControlName="vMoyKmH" type="number">
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+            <mat-label>Temps de recharge en min</mat-label>
+            <input matInput formControlName="tempsArretMin" type="number">
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+            <mat-label>Autonomie en Km</mat-label>
+            <input matInput formControlName="autonomieEnKm" type="number">
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit">Calculer</button>
+
+        <p>{{tempsMinutes || "Aucun trajet saisi"}}</p>
+    </form>
+</div>

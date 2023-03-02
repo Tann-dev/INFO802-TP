@@ -1,4 +1,4 @@
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -12,6 +12,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import {MatButtonModule} from '@angular/material/button';
+import { APOLLO_NAMED_OPTIONS, ApolloModule, NamedOptions } from 'apollo-angular';
+import { HttpLink } from 'apollo-angular/http';
+import { InMemoryCache } from '@apollo/client/core';
+import {MatSelectModule} from '@angular/material/select';
 
 @NgModule({
   declarations: [
@@ -28,9 +32,32 @@ import {MatButtonModule} from '@angular/material/button';
     MatFormFieldModule,
     ReactiveFormsModule,
     MatInputModule,
-    MatButtonModule
+    MatButtonModule,
+    ApolloModule,
+    MatSelectModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: APOLLO_NAMED_OPTIONS, // <-- Different from standard initialization
+      useFactory(httpLink: HttpLink): NamedOptions {
+        return {
+          chargetrip: {
+            // <-- This settings will be saved by name: chargetrip
+            cache: new InMemoryCache(),
+            link: httpLink.create({
+              uri: 'https://api.chargetrip.io/graphql',
+              headers: new HttpHeaders({
+                'x-client-id': '64005bb21952b9ff2c91465b',
+                'x-app-id': '64005bb21952b9ff2c91465d'
+              }),
+              method: 'POST'
+            }),
+          },
+        };
+      },
+      deps: [HttpLink],
+    }
+  ],
 
   bootstrap: [AppComponent]
 })

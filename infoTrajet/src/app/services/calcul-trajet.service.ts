@@ -7,7 +7,7 @@ import { catchError } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
-export class CalculTrajetServiceService {
+export class CalculTrajetService {
 
   private apiURL = "http://localhost:8000";
   private parser = new DOMParser();
