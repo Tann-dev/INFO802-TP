@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Apollo, ApolloBase, gql } from 'apollo-angular';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -12,32 +13,44 @@ export class VoitureService {
     this.apollo = this.apolloProvider.use('chargetrip');
   }
  
-  test(): void {
-    this.apollo.watchQuery({
-      query: gql`
-          {
-            vehicleList(
-              page: 10, 
-              size: 10, 
-              search: ""
-            ) {
-              id
-              naming {
-                make
-                model
-                chargetrip_version
-              }
-              media {
-                image {
-                  thumbnail_url
-                }
-              }
+  findVehicule(search: String): Observable<any> {
+    let queryListVehicule = gql`
+      query queryListVehicule($search: String!) {
+        vehicleList(
+          search : $search
+        ) {
+          id
+          naming {
+            make
+            model
+            version
+            edition
+          }
+          range {
+            chargetrip_range {
+              best
+              worst
             }
           }
-        `,
-    }).valueChanges.subscribe((result: any) => {
-      console.log(result)
-    });
+          routing {
+            fast_charging_support
+          }
+          media {
+            image {
+              thumbnail_url
+              thumbnail_height
+              thumbnail_width
+            }
+          }
+        }
+      }
+      `;
+    return this.apollo.watchQuery({ 
+      query: queryListVehicule,
+      variables: {
+        search: search
+      }
+    }).valueChanges;
   }
 
 }

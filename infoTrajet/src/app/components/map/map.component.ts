@@ -1,4 +1,4 @@
-import { Component, AfterViewInit  } from '@angular/core';
+import { Component, AfterViewInit, Output, EventEmitter  } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 
@@ -10,6 +10,8 @@ import 'leaflet-routing-machine';
 export class MapComponent {
 
   private map!: L.Map;
+
+  private itineraire!: L.Routing.Control;
 
   private electricIcon = L.icon({
     iconUrl: 'assets/images/icons8-electric-power-64.png',
@@ -39,23 +41,43 @@ export class MapComponent {
 
     tiles.addTo(this.map);
 
-    L.marker([45.64046, 5.8714], {icon: this.electricIcon}).addTo(this.map);
-
     L.Marker.prototype.options.icon = this.epingleIcon
-
-    L.Routing.control({
-      waypoints: [
-        L.latLng(57.74, 11.94),
-        L.latLng(57.6792, 11.949)
-      ],
-      show: false,
-      fitSelectedRoutes: false,
-    }).addTo(this.map);
   }
 
   constructor() { }
 
   ngAfterViewInit(): void { 
     this.initMap();
+  }
+
+  parentEventHandlerFunction(trajet: any){
+    // TODO mettre les bornes
+
+    // Mettre une borne L.marker([45.64046, 5.8714], {icon: this.electricIcon}).addTo(this.map);
+
+    if(this.itineraire != undefined)
+      this.map.removeControl(this.itineraire);
+
+    this.itineraire = L.Routing.control({
+      waypoints: [
+        L.latLng(trajet.depart.lat, trajet.depart.lon),
+        L.latLng(trajet.arrivee.lat, trajet.arrivee.lon)
+      ],
+      show: false,
+      fitSelectedRoutes: false,
+    })
+
+    this.itineraire.addTo(this.map)
+
+    console.log(this.itineraire.getWaypoints())
+
+    this.map.fitBounds([[
+        trajet.depart.lat > trajet.arrivee.lat ? trajet.depart.lat : trajet.arrivee.lat, 
+        trajet.depart.lon > trajet.arrivee.lon ? trajet.depart.lon : trajet.arrivee.lon
+      ], [
+        trajet.depart.lat < trajet.arrivee.lat ? trajet.depart.lat : trajet.arrivee.lat, 
+        trajet.depart.lon < trajet.arrivee.lon ? trajet.depart.lon : trajet.arrivee.lon
+      ]
+    ])
   }
 }

@@ -1,22 +1,53 @@
 <div class="form-map">
-    <form [formGroup]="formDestination">
+    <form [formGroup]="formVoiture" (ngSubmit)="voiture()">
+        <mat-form-field appearance="fill">
+            <mat-label>Nom voiture</mat-label>
+            <input (focusout)="getVoitures()" matInput formControlName="nom" type="text">
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-select formControlName="voiture" placeholder="Voiture">
+              <mat-option *ngFor="let voiture of voitureList" [value]="voiture">
+                {{ voiture.naming.make || "" }}
+                {{ voiture.naming.model || "" }}
+                {{ voiture.naming.version || "" }}
+                {{ voiture.naming.edition || "" }}
+              </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit">Choisir ce véhicule</button>
+    </form>
+
+    <form [formGroup]="formDestination" (ngSubmit)="tracer()">
         <mat-form-field appearance="fill">
             <mat-label>Départ</mat-label>
-            <input (input)="getDepart()" matInput formControlName="depart" type="text">
+            <input (focusout)="getDepart()" matInput formControlName="depart" type="text">
         </mat-form-field>
+
         <mat-form-field>
-            <mat-select formControlName="valueDepart">
-              <mat-option *ngFor="let place of places" [value]="place">
+            <mat-select formControlName="valueDepart" placeholder="Départ">
+              <mat-option *ngFor="let place of placesDepart" [value]="place">
                 {{ place.display_name}}
               </mat-option>
             </mat-select>
         </mat-form-field>
-          
+
 
         <mat-form-field appearance="fill">
-            <mat-label>Arrivé</mat-label>
-            <input matInput formControlName="arrivee" type="text">
+            <mat-label>Arrivée</mat-label>
+            <input (focusout)="getArrivee()" matInput formControlName="arrivee" type="text">
         </mat-form-field>
+
+        <mat-form-field>
+            <mat-select formControlName="valueArrivee" placeholder="Arrivée">
+              <mat-option *ngFor="let place of placesArrivee" [value]="place">
+                {{ place.display_name}}
+              </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit">Tracer l'itinéraire</button>
     </form>
 
     <form [formGroup]="formTrajet" (ngSubmit)="calculate()">

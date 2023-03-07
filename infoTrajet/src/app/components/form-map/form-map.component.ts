@@ -1,4 +1,4 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, EventEmitter, OnInit, Output} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CalculTrajetService } from 'src/app/services/calcul-trajet.service';
 import { NominatimService } from 'src/app/services/nominatim.service';
@@ -13,8 +13,18 @@ export class FormMapComponent implements OnInit {
 
   formDestination: FormGroup = new FormGroup({});
   formTrajet: FormGroup = new FormGroup({});
+  formVoiture: FormGroup = new FormGroup({});
   tempsMinutes: number | null = null;
-  places: any[] = [];
+  placesDepart: any[] = [{display_name: "Rien"}];
+  placesArrivee: any[] = [{display_name: "Rien"}];
+  voitureList: any[] = [{naming: {
+            make: "Rien",
+            model: "",
+            version: "",
+            edition: ""
+        }
+      }];
+  @Output() buttonClicked = new EventEmitter<any>();  
 
   constructor(
     public trajetService: CalculTrajetService,
@@ -24,10 +34,16 @@ export class FormMapComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.formVoiture = this.formBuilder.group( {
+      nom: ["", [Validators.required]],
+      voiture: ["", [Validators.required]]
+    })
+
     this.formDestination = this.formBuilder.group( {
       depart: ["", [Validators.required]],
       valueDepart: ["", [Validators.required]],
-      arrivee: ["", [Validators.required]]
+      arrivee: ["", [Validators.required]],
+      valueArrivee: ["", [Validators.required]]
     })
 
     this.formTrajet = this.formBuilder.group( {
@@ -36,13 +52,17 @@ export class FormMapComponent implements OnInit {
       tempsArretMin: [0, [Validators.required]],
       autonomieEnKm: [0, [Validators.required]]
     })
-
-    this.voitureService.test();
   }
 
   getDepart() {
     this.nominatimService.coordonnees(this.formDestination.controls['depart'].value).subscribe((data: any[]) => {
-      this.places = data
+      this.placesDepart = data
+    })
+  }
+
+  getArrivee() {
+    this.nominatimService.coordonnees(this.formDestination.controls['arrivee'].value).subscribe((data: any[]) => {
+      this.placesArrivee = data
     })
   }
 
@@ -54,7 +74,23 @@ export class FormMapComponent implements OnInit {
       this.formTrajet.controls['autonomieEnKm'].value
       ).subscribe((data: any) =>{
       this.tempsMinutes = data;
-      console.log(this.formDestination.controls['valueDepart'].value);
     })
+  }
+
+  tracer() {
+    var trajet = {
+      depart: this.formDestination.controls['valueDepart'].value,
+      arrivee: this.formDestination.controls['valueArrivee'].value 
+    }
+    this.buttonClicked.emit(trajet);
+  }
+
+  voiture() { }
+
+  getVoitures() {
+    this.voitureService.findVehicule(this.formVoiture.controls['nom'].value).subscribe(data =>  {
+      this.voitureList = data.data.vehicleList
+      console.log(data)
+    });
   }
 }
