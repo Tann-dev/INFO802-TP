@@ -8,7 +8,7 @@ import { Observable } from 'rxjs/internal/Observable';
 })
 export class BorneService {
 
-  private apiURL = "https://odre.opendatasoft.com/api/v2/";
+  private apiURL = "https://odre.opendatasoft.com/api/records/1.0/search/?dataset=bornes-irve&rows=1&geofilter.distance=";
 
   httpOptions = {
     headers: new HttpHeaders({
@@ -18,12 +18,12 @@ export class BorneService {
 
   constructor(private httpClient: HttpClient) { }
 
-  trajet(distanceEnKm: number, vMoyKmH: number, tempsArretMin: number, autonomieEnKm: number): Observable<any> {
-    return this.httpClient.post<any>(this.apiURL + "/catalog", this.httpOptions)
+  getBornes(lat:number, long:number, dist:number){
+    return this.httpClient.get<any>(this.apiURL + lat + '%2C' + long + '%2C' + dist, this.httpOptions)
     .pipe(
       catchError(this.errorHandler)
-    )
-  } 
+    );
+  }
 
   errorHandler(error: { error: { message: string; }; status: any; message: any; }) {
     let errorMessage = '';

@@ -38,8 +38,6 @@ export class VoitureService {
           media {
             image {
               thumbnail_url
-              thumbnail_height
-              thumbnail_width
             }
           }
         }

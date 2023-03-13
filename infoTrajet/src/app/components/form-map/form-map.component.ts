@@ -24,7 +24,8 @@ export class FormMapComponent implements OnInit {
             edition: ""
         }
       }];
-  @Output() buttonClicked = new EventEmitter<any>();  
+
+  @Output() buttonClicked = new EventEmitter<any>();
 
   constructor(
     public trajetService: CalculTrajetService,
@@ -34,23 +35,13 @@ export class FormMapComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.formVoiture = this.formBuilder.group( {
-      nom: ["", [Validators.required]],
-      voiture: ["", [Validators.required]]
-    })
-
     this.formDestination = this.formBuilder.group( {
       depart: ["", [Validators.required]],
       valueDepart: ["", [Validators.required]],
       arrivee: ["", [Validators.required]],
-      valueArrivee: ["", [Validators.required]]
-    })
-
-    this.formTrajet = this.formBuilder.group( {
-      distanceEnKm: [0, [Validators.required]],
-      vMoyKmH: [0, [Validators.required]],
-      tempsArretMin: [0, [Validators.required]],
-      autonomieEnKm: [0, [Validators.required]]
+      valueArrivee: ["", [Validators.required]],
+      nom: ["", [Validators.required]],
+      voiture: ["", [Validators.required]]
     })
   }
 
@@ -66,7 +57,7 @@ export class FormMapComponent implements OnInit {
     })
   }
 
-  calculate() {
+  /*calculate() {
     this.trajetService.tempsTrajet(
       this.formTrajet.controls['distanceEnKm'].value,
       this.formTrajet.controls['vMoyKmH'].value,
@@ -75,20 +66,19 @@ export class FormMapComponent implements OnInit {
       ).subscribe((data: any) =>{
       this.tempsMinutes = data;
     })
-  }
+  }*/
 
   tracer() {
     var trajet = {
       depart: this.formDestination.controls['valueDepart'].value,
-      arrivee: this.formDestination.controls['valueArrivee'].value 
+      arrivee: this.formDestination.controls['valueArrivee'].value,
+      voiture: this.formDestination.controls['voiture'].value
     }
     this.buttonClicked.emit(trajet);
   }
 
-  voiture() { }
-
   getVoitures() {
-    this.voitureService.findVehicule(this.formVoiture.controls['nom'].value).subscribe(data =>  {
+    this.voitureService.findVehicule(this.formDestination.controls['nom'].value).subscribe(data =>  {
       this.voitureList = data.data.vehicleList
       console.log(data)
     });

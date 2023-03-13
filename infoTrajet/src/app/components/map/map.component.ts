@@ -12,6 +12,7 @@ export class MapComponent {
   private map!: L.Map;
 
   private itineraire!: L.Routing.Control;
+  private voiture!: any;
 
   private electricIcon = L.icon({
     iconUrl: 'assets/images/icons8-electric-power-64.png',
@@ -50,10 +51,8 @@ export class MapComponent {
     this.initMap();
   }
 
-  parentEventHandlerFunction(trajet: any){
-    // TODO mettre les bornes
-
-    // Mettre une borne L.marker([45.64046, 5.8714], {icon: this.electricIcon}).addTo(this.map);
+  trajetHandler(trajet: any){
+    this.voiture = trajet.voiture;
 
     if(this.itineraire != undefined)
       this.map.removeControl(this.itineraire);
@@ -65,6 +64,25 @@ export class MapComponent {
       ],
       show: false,
       fitSelectedRoutes: false,
+    })
+
+    this.itineraire.on("routesfound", (e) => {
+      console.log(e.routes[0])
+      var distanceEnM = e.routes[0].summary.totalDistance
+      //var distanceEntrePoints = distanceEnM / e.routes[0].coordinates.length
+      console.log(this.voiture)
+      var nbBornesEntreRecharges = Math.floor(distanceEnM / (this.voiture.range.chargetrip_range.worst * 1000)) + 1
+      if(nbBornesEntreRecharges > 1) {
+        var nbPointsEntreBornes = Math.floor(e.routes[0].coordinates.length / nbBornesEntreRecharges)
+        for (let i = 1; i < nbBornesEntreRecharges; i++) {
+          // TODO chercher les bornes sur l'api
+          if(nbPointsEntreBornes * i < e.routes[0].coordinates.length) {
+            L.marker([e.routes[0].coordinates[nbPointsEntreBornes * i].lat, e.routes[0].coordinates[nbPointsEntreBornes * i].lng], {icon: this.electricIcon}).addTo(this.map)
+          }
+        }        
+      }
+
+      console.log(distanceEnM)
     })
 
     this.itineraire.addTo(this.map)

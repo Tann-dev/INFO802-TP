@@ -16,6 +16,7 @@ import { APOLLO_NAMED_OPTIONS, ApolloModule, NamedOptions } from 'apollo-angular
 import { HttpLink } from 'apollo-angular/http';
 import { InMemoryCache } from '@apollo/client/core';
 import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { MatSelectModule } from '@angular/material/select';
     MatInputModule,
     MatButtonModule,
     ApolloModule,
-    MatSelectModule
+    MatSelectModule,
+    MatAutocompleteModule
   ],
   providers: [
     {
