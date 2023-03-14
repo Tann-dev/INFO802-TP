@@ -35,23 +35,23 @@ app.post("/api/transport/", (req, res, next) => {
 
     switch (typeTransport) {
         case "PogoStick":
-            tempsTrajetMinute = distanceEnKm / 2;
+            tempsTrajetMinute = distanceEnKm * 9;
             break;
         case "APied":
-            tempsTrajetMinute = distanceEnKm / 8;
+            tempsTrajetMinute = distanceEnKm * 8;
             break;
         case "Velo":
-            tempsTrajetMinute = distanceEnKm / 16;
+            tempsTrajetMinute = distanceEnKm * 4;
             break;
         case "Cheval":
-            tempsTrajetMinute = distanceEnKm / 20;
+            tempsTrajetMinute = distanceEnKm * 3;
             break;
         default:
-            tempsTrajetMinute = distanceEnKm;
+            tempsTrajetMinute = distanceEnKm * 10;
             break;
     }
 
-    res.json({ "tempsTrajetMinute": tempsTrajetMinute })
+    res.json({ "tempsTrajetMinute": tempsTrajetMinute, "tempsTrajetHeure": tempsTrajetMinute / 60 })
 })
 
 // Default response for any other request

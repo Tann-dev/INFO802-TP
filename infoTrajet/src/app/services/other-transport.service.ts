@@ -8,9 +8,8 @@ import { catchError, Observable, throwError } from 'rxjs';
 export class OtherTransportService {
 
 
-  // TODO route d'api
   // TODO toutes les mettre en variable d'env
-  private apiURL = "http://localhost:8000/api";
+  private apiURL = "http://localhost:3000/api";
 
   httpOptions = {
     headers: new HttpHeaders({
@@ -20,9 +19,12 @@ export class OtherTransportService {
 
   constructor(private httpClient: HttpClient) { }
 
-  // TODO mettre la bonne route d'api
-  create(category: any): Observable<any> {
-    return this.httpClient.post<any>(this.apiURL + '/categories/', JSON.stringify(category), this.httpOptions)
+  create(typeTransport: String, distanceEnKm: number): Observable<any> {
+    var request = {
+      typeTransport: typeTransport,
+      distanceEnKm: distanceEnKm
+    }
+    return this.httpClient.post<any>(this.apiURL + '/categories/', JSON.stringify(request), this.httpOptions)
     .pipe(
       catchError(this.errorHandler)
     )

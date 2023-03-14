@@ -20,6 +20,6 @@ application = Application([CalculTrajetService], 'spyne.examples.trajet.soap',
         out_protocol=Soap11())
 wsgi_application = WsgiApplication(application)
 
-
+# app = wsgi_application
 server = make_server('127.0.0.1', 8000, wsgi_application)
 server.serve_forever()

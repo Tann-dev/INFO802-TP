@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "undefined/subscriptions/a7041fb7-d06b-4051-b2b0-73e1b702db5c/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/info802-antoine-depoisier-rest",
+    "appService.deploySubpath": "."
+}

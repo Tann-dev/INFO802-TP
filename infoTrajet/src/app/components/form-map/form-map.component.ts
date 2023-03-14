@@ -80,7 +80,6 @@ export class FormMapComponent implements OnInit {
   getVoitures() {
     this.voitureService.findVehicule(this.formDestination.controls['nom'].value).subscribe(data =>  {
       this.voitureList = data.data.vehicleList
-      console.log(data)
     });
   }
 }

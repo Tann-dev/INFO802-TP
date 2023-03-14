@@ -1,6 +1,8 @@
-import { Component, AfterViewInit, Output, EventEmitter  } from '@angular/core';
+import { Component, AfterViewInit, Output, EventEmitter, ViewChild, ElementRef, Renderer2  } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet-routing-machine';
+import { BorneService } from 'src/app/services/borne.service';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-map',
@@ -10,16 +12,11 @@ import 'leaflet-routing-machine';
 export class MapComponent {
 
   private map!: L.Map;
-
+  private distanceABorneEnM: number = 20000;
   private itineraire!: L.Routing.Control;
+  private waypoints: any[] = [];
   private voiture!: any;
-
-  private electricIcon = L.icon({
-    iconUrl: 'assets/images/icons8-electric-power-64.png',
-    iconSize:     [40, 40], // size of the icon
-    iconAnchor:   [20, 20], // point of the icon which will correspond to marker's location
-    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
-  });
+  @ViewChild('map') mapElement: ElementRef<HTMLDivElement> | undefined;
 
   private epingleIcon = L.icon({
     iconUrl: 'assets/images/icons8-epingle-de-carte-96.png',
@@ -45,17 +42,31 @@ export class MapComponent {
     L.Marker.prototype.options.icon = this.epingleIcon
   }
 
-  constructor() { }
+  constructor(public borneService: BorneService, private renderer : Renderer2) { }
 
   ngAfterViewInit(): void { 
     this.initMap();
   }
 
-  trajetHandler(trajet: any){
+  async trajetHandler(trajet: any){
+    this.map.fitBounds([[
+      trajet.depart.lat > trajet.arrivee.lat ? trajet.depart.lat : trajet.arrivee.lat, 
+      trajet.depart.lon > trajet.arrivee.lon ? trajet.depart.lon : trajet.arrivee.lon
+    ], [
+      trajet.depart.lat < trajet.arrivee.lat ? trajet.depart.lat : trajet.arrivee.lat, 
+      trajet.depart.lon < trajet.arrivee.lon ? trajet.depart.lon : trajet.arrivee.lon
+    ]
+  ])
+
     this.voiture = trajet.voiture;
 
-    if(this.itineraire != undefined)
+    if(this.itineraire != undefined) {
       this.map.removeControl(this.itineraire);
+      this.waypoints = [{
+        lat: trajet.depart.lat, 
+        lng: trajet.depart.lon
+      }];
+    }
 
     this.itineraire = L.Routing.control({
       waypoints: [
@@ -66,36 +77,51 @@ export class MapComponent {
       fitSelectedRoutes: false,
     })
 
-    this.itineraire.on("routesfound", (e) => {
-      console.log(e.routes[0])
-      var distanceEnM = e.routes[0].summary.totalDistance
-      //var distanceEntrePoints = distanceEnM / e.routes[0].coordinates.length
-      console.log(this.voiture)
-      var nbBornesEntreRecharges = Math.floor(distanceEnM / (this.voiture.range.chargetrip_range.worst * 1000)) + 1
-      if(nbBornesEntreRecharges > 1) {
-        var nbPointsEntreBornes = Math.floor(e.routes[0].coordinates.length / nbBornesEntreRecharges)
-        for (let i = 1; i < nbBornesEntreRecharges; i++) {
-          // TODO chercher les bornes sur l'api
-          if(nbPointsEntreBornes * i < e.routes[0].coordinates.length) {
-            L.marker([e.routes[0].coordinates[nbPointsEntreBornes * i].lat, e.routes[0].coordinates[nbPointsEntreBornes * i].lng], {icon: this.electricIcon}).addTo(this.map)
-          }
-        }        
-      }
-
-      console.log(distanceEnM)
-    })
-
     this.itineraire.addTo(this.map)
 
-    console.log(this.itineraire.getWaypoints())
+    this.findWaypoints().then((result: any) => {
+      this.waypoints.push(L.latLng(trajet.depart.lat, trajet.depart.lon))
+      result.forEach((ele: { lat: number; lng: number; }) => {
+        this.waypoints.push(L.latLng(ele.lat, ele.lng))
+      });
+      this.waypoints.push(L.latLng(trajet.arrivee.lat, trajet.arrivee.lon))
 
-    this.map.fitBounds([[
-        trajet.depart.lat > trajet.arrivee.lat ? trajet.depart.lat : trajet.arrivee.lat, 
-        trajet.depart.lon > trajet.arrivee.lon ? trajet.depart.lon : trajet.arrivee.lon
-      ], [
-        trajet.depart.lat < trajet.arrivee.lat ? trajet.depart.lat : trajet.arrivee.lat, 
-        trajet.depart.lon < trajet.arrivee.lon ? trajet.depart.lon : trajet.arrivee.lon
-      ]
-    ])
+      this.itineraire.setWaypoints(this.waypoints)
+
+      var childs = this.mapElement?.nativeElement.childNodes[0].childNodes[3].childNodes;
+      if(childs != undefined && childs.length > 2){
+        for( var i = 1; i< childs.length -1; i++){
+          this.renderer.setStyle(childs[i], "content", 'url("assets/images/icons8-electric-power-64.png")');
+        } 
+      }
+
+    })
+    
+  }
+
+  async findWaypoints() {
+    return new Promise(async (resolve) => {
+      this.itineraire.on("routesfound", async (e) => {
+        var bornes = []
+        var distanceEnM = e.routes[0].summary.totalDistance
+        var distanceEntrePoints = distanceEnM / e.routes[0].coordinates.length
+        var nbPointsEntreDistanceABorneEnM = this.distanceABorneEnM / distanceEntrePoints
+        var autonomieEnM = (this.voiture.range.chargetrip_range.worst) * 1000 - this.distanceABorneEnM
+        if(distanceEnM > autonomieEnM) {
+          var nbPointsEntreBornes = Math.floor(autonomieEnM / distanceEntrePoints)
+          for (let i = nbPointsEntreBornes; i < e.routes[0].coordinates.length; i += nbPointsEntreBornes) {
+            // TODO rechercher à nouveau si l'api n'en trouve pas dans le coin
+            if(i < e.routes[0].coordinates.length) {
+              let currentBorne = await lastValueFrom(this.borneService.getBornes(e.routes[0].coordinates[i].lat, e.routes[0].coordinates[i].lng, this.distanceABorneEnM))
+              bornes.push({
+                lat: currentBorne.records[0].geometry.coordinates[1],
+                lng: currentBorne.records[0].geometry.coordinates[0]
+              });
+            }
+          }
+          resolve(bornes);
+        }
+      })
+    });
   }
 }
