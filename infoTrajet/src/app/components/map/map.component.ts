@@ -3,6 +3,8 @@ import * as L from 'leaflet';
 import 'leaflet-routing-machine';
 import { BorneService } from 'src/app/services/borne.service';
 import { lastValueFrom } from 'rxjs';
+import { CalculTrajetService } from 'src/app/services/calcul-trajet.service';
+import { OtherTransportService } from 'src/app/services/other-transport.service';
 
 @Component({
   selector: 'app-map',
@@ -12,10 +14,13 @@ import { lastValueFrom } from 'rxjs';
 export class MapComponent {
 
   private map!: L.Map;
-  private distanceABorneEnM: number = 20000;
+  private distanceABorneEnM: number = 15000;
   private itineraire!: L.Routing.Control;
   private waypoints: any[] = [];
   private voiture!: any;
+  public tempsMinutes!: number;
+  public tempsMinutesOther!: number;
+  private distanceTotale!: number;
   @ViewChild('map') mapElement: ElementRef<HTMLDivElement> | undefined;
 
   private epingleIcon = L.icon({
@@ -42,7 +47,10 @@ export class MapComponent {
     L.Marker.prototype.options.icon = this.epingleIcon
   }
 
-  constructor(public borneService: BorneService, private renderer : Renderer2) { }
+  constructor(public borneService: BorneService,
+    public trajetService: CalculTrajetService,
+    public otherTransportService: OtherTransportService,
+    private renderer : Renderer2) { }
 
   ngAfterViewInit(): void { 
     this.initMap();
@@ -95,6 +103,7 @@ export class MapComponent {
         } 
       }
 
+      this.calculTempsTrajet(this.distanceTotale/1000, this.voiture.routing.fast_charging_support, this.waypoints.length - 2, trajet.otherTypeTrasport)
     })
     
   }
@@ -103,16 +112,22 @@ export class MapComponent {
     return new Promise(async (resolve) => {
       this.itineraire.on("routesfound", async (e) => {
         var bornes = []
-        var distanceEnM = e.routes[0].summary.totalDistance
-        var distanceEntrePoints = distanceEnM / e.routes[0].coordinates.length
-        var nbPointsEntreDistanceABorneEnM = this.distanceABorneEnM / distanceEntrePoints
+        this.distanceTotale = e.routes[0].summary.totalDistance
+        var distanceEntrePoints = this.distanceTotale / e.routes[0].coordinates.length
+        var nbPointsEntreDistanceABorneEnM = Math.floor(this.distanceABorneEnM / distanceEntrePoints)
         var autonomieEnM = (this.voiture.range.chargetrip_range.worst) * 1000 - this.distanceABorneEnM
-        if(distanceEnM > autonomieEnM) {
+        if(this.distanceTotale > autonomieEnM) {
           var nbPointsEntreBornes = Math.floor(autonomieEnM / distanceEntrePoints)
           for (let i = nbPointsEntreBornes; i < e.routes[0].coordinates.length; i += nbPointsEntreBornes) {
-            // TODO rechercher à nouveau si l'api n'en trouve pas dans le coin
             if(i < e.routes[0].coordinates.length) {
-              let currentBorne = await lastValueFrom(this.borneService.getBornes(e.routes[0].coordinates[i].lat, e.routes[0].coordinates[i].lng, this.distanceABorneEnM))
+              let currentBorne = null
+              while(currentBorne == null) {
+                currentBorne = await lastValueFrom(this.borneService.getBornes(e.routes[0].coordinates[i].lat, e.routes[0].coordinates[i].lng, this.distanceABorneEnM))
+                if(currentBorne.records.length == 0) {
+                  currentBorne = null;
+                  i -= nbPointsEntreDistanceABorneEnM;
+                }
+              }
               bornes.push({
                 lat: currentBorne.records[0].geometry.coordinates[1],
                 lng: currentBorne.records[0].geometry.coordinates[0]
@@ -123,5 +138,17 @@ export class MapComponent {
         }
       })
     });
+  }
+
+  calculTempsTrajet(distanceEnKm: number, isFastCharging: boolean, nbBornes: number, typeTransport: String) {
+    this.trajetService.tempsTrajet(distanceEnKm, isFastCharging, nbBornes).subscribe((data: any) =>{
+      this.tempsMinutes = Math.floor(data) + 1;
+    })
+
+    if(typeTransport != "null" && typeTransport != undefined) {
+      this.otherTransportService.getTime(typeTransport, distanceEnKm).subscribe((data: any) => {
+        this.tempsMinutesOther = Math.floor(data.tempsTrajetMinute) + 1;
+      })
+    }
   }
 }

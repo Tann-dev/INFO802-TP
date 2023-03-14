@@ -30,7 +30,6 @@
             </mat-select>
         </mat-form-field>
 
-
         <mat-form-field appearance="fill">
             <mat-label>Arrivée</mat-label>
             <input (focusout)="getArrivee()" matInput formControlName="arrivee" type="text">
@@ -44,7 +43,21 @@
             </mat-select>
         </mat-form-field>
 
+        <Label>Comparer à un autre transport ?</Label>
+        <mat-radio-group formControlName="otherTypeTrasport" class="radio-form">
+          <mat-radio-button value="null">Non</mat-radio-button>
+          <mat-radio-button value="PogoStick">PogoStick</mat-radio-button>
+          <mat-radio-button value="APied">A pieds</mat-radio-button>
+          <mat-radio-button value="Velo">Vélo</mat-radio-button>
+          <mat-radio-button value="Cheval">Cheval</mat-radio-button>
+        </mat-radio-group>
+        
+
         <button mat-raised-button color="primary" type="submit">Tracer l'itinéraire</button>
+
+        <p *ngIf="tempsMinutesOtherParent">{{(tempsMinutesOtherParent - tempsMinutesOtherParent % 60) / 60}} H et {{tempsMinutesOtherParent % 60}} minutes en {{formDestination.controls['otherTypeTrasport'].value}}</p>
+        <p *ngIf="tempsMinutesParent">{{(tempsMinutesParent - tempsMinutesParent % 60) / 60}} H et {{tempsMinutesParent % 60}} minutes en voiture</p>
+
     </form>
     
 </div>

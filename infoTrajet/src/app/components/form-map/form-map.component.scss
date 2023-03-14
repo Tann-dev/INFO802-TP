@@ -15,3 +15,10 @@ form{
     padding: 25px;
     align-items: center;
 }
+
+.radio-form{
+    display: flex;
+    flex-direction: row;
+    width: 180px;
+    flex-wrap: wrap;
+}

@@ -9,19 +9,16 @@ import { catchError } from 'rxjs/operators';
 })
 export class CalculTrajetService {
 
-  private apiURL = "http://localhost:8000";
+  private apiURL = "http://localhost:3001";
   private parser = new DOMParser();
 
   httpOptions = {
-    headers: new HttpHeaders({
-      'Accept' : '*/*'
-    }),
-    responseType: 'text' as 'json'
+    responseType: "text" as "json"
   }
 
   constructor(private httpClient: HttpClient) { }
 
-  trajet(distanceEnKm: number, vMoyKmH: number, tempsArretMin: number, autonomieEnKm: number): Observable<any> {
+  trajet(distanceEnKm: number, isFastCharging: boolean, nbBornes: number): Observable<any> {
     var body : String = 
     "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:spy=\"spyne.examples.trajet.soap\"> \
       <soapenv:Header/> \
@@ -30,11 +27,9 @@ export class CalculTrajetService {
             <!--Optional:--> \
             <spy:distanceEnKm>" + distanceEnKm+ "</spy:distanceEnKm> \
             <!--Optional:--> \
-            <spy:vMoyKmH>" + vMoyKmH + "</spy:vMoyKmH> \
+            <spy:isFastCharging>" + isFastCharging + "</spy:isFastCharging> \
             <!--Optional:--> \
-            <spy:tempsArretMin>" + tempsArretMin + "</spy:tempsArretMin> \
-            <!--Optional:--> \
-            <spy:autonomieEnKm>" + autonomieEnKm + "</spy:autonomieEnKm> \
+            <spy:nbBornes>" + nbBornes + "</spy:nbBornes> \
          </spy:tempsTrajet> \
       </soapenv:Body> \
    </soapenv:Envelope>" 
@@ -44,9 +39,9 @@ export class CalculTrajetService {
     )
   } 
 
-  tempsTrajet(distanceEnKm: number, vMoyKmH: number, tempsArretMin: number, autonomieEnKm: number) : Observable<number> {
+  tempsTrajet(distanceEnKm: number, isFastCharging: boolean, nbBornes: number) : Observable<number> {
     var subject = new Subject<number>();
-    this.trajet(distanceEnKm, vMoyKmH, tempsArretMin, autonomieEnKm).subscribe((data: any) =>{
+    this.trajet(distanceEnKm, isFastCharging, nbBornes).subscribe((data: any) =>{
         let xmlDoc = this.parser.parseFromString(data,"text/xml");
         subject.next(xmlDoc.getElementsByTagName("tns:tempsTrajetResult")[0].childNodes[0].nodeValue as unknown as number); 
       }

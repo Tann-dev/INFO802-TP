@@ -51,7 +51,7 @@ app.post("/api/transport/", (req, res, next) => {
             break;
     }
 
-    res.json({ "tempsTrajetMinute": tempsTrajetMinute, "tempsTrajetHeure": tempsTrajetMinute / 60 })
+    res.json({tempsTrajetMinute})
 })
 
 // Default response for any other request

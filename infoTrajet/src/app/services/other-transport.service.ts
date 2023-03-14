@@ -19,12 +19,12 @@ export class OtherTransportService {
 
   constructor(private httpClient: HttpClient) { }
 
-  create(typeTransport: String, distanceEnKm: number): Observable<any> {
+  getTime(typeTransport: String, distanceEnKm: number): Observable<any> {
     var request = {
       typeTransport: typeTransport,
       distanceEnKm: distanceEnKm
     }
-    return this.httpClient.post<any>(this.apiURL + '/categories/', JSON.stringify(request), this.httpOptions)
+    return this.httpClient.post<any>(this.apiURL + '/transport/', JSON.stringify(request), this.httpOptions)
     .pipe(
       catchError(this.errorHandler)
     )

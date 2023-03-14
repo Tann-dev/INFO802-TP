@@ -1,8 +1,5 @@
 <div class="map-container">
-    <app-form-map (buttonClicked)="trajetHandler($event)"></app-form-map>
-    <div>
-        <p>Text</p>
-    </div>
+    <app-form-map (buttonClicked)="trajetHandler($event)" [tempsMinutesOtherParent]="tempsMinutesOther" [tempsMinutesParent]="tempsMinutes"></app-form-map>
     <div class="map-frame">
         <div #map id="map"></div>
     </div>
