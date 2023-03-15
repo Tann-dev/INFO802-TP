@@ -1,15 +1,14 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
+import { environment } from 'src/environment/environment.prod';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OtherTransportService {
 
-
-  // TODO toutes les mettre en variable d'env
-  private apiURL = "https://info-802-tp-rest.vercel.app/";
+  private apiURL = environment.apiRest;
 
   httpOptions = {
     headers: new HttpHeaders({

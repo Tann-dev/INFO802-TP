@@ -18,6 +18,9 @@ import { InMemoryCache } from '@apollo/client/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatRadioModule } from '@angular/material/radio'; 
+import { environment } from 'src/environment/environment.prod';
+
+
 
 @NgModule({
   declarations: [
@@ -51,8 +54,8 @@ import { MatRadioModule } from '@angular/material/radio';
             link: httpLink.create({
               uri: 'https://api.chargetrip.io/graphql',
               headers: new HttpHeaders({
-                'x-client-id': '64005bb21952b9ff2c91465b',
-                'x-app-id': '64005bb21952b9ff2c91465d'
+                'x-client-id': environment.xClientId,
+                'x-app-id': environment.xAppId
               }),
               method: 'POST'
             }),

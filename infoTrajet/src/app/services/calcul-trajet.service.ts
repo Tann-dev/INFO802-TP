@@ -3,13 +3,14 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
     
 import { Observable, Subject, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { environment } from 'src/environment/environment.prod';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CalculTrajetService {
 
-  private apiURL = "http://localhost:3001";
+  private apiURL = environment.apiSoap;
   private parser = new DOMParser();
 
   httpOptions = {
