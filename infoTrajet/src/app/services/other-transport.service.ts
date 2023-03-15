@@ -23,7 +23,7 @@ export class OtherTransportService {
       typeTransport: typeTransport,
       distanceEnKm: distanceEnKm
     }
-    return this.httpClient.post<any>(this.apiURL + '/transport/', JSON.stringify(request), this.httpOptions)
+    return this.httpClient.post<any>(this.apiURL + '/api/transport/', JSON.stringify(request), this.httpOptions)
     .pipe(
       catchError(this.errorHandler)
     )
