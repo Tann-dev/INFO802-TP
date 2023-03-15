@@ -1,0 +1,14 @@
+{
+    "builds": [
+      {
+        "src": "calculTrajetService.py",
+        "use": "@vercel/python"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "calculTrajetService.py"
+      }
+    ]
+  }
