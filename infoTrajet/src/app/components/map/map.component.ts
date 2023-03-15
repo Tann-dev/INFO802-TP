@@ -70,11 +70,9 @@ export class MapComponent {
 
     if(this.itineraire != undefined) {
       this.map.removeControl(this.itineraire);
-      this.waypoints = [{
-        lat: trajet.depart.lat, 
-        lng: trajet.depart.lon
-      }];
     }
+
+    this.waypoints = [];
 
     this.itineraire = L.Routing.control({
       waypoints: [
@@ -83,6 +81,7 @@ export class MapComponent {
       ],
       show: false,
       fitSelectedRoutes: false,
+      addWaypoints: false
     })
 
     this.itineraire.addTo(this.map)
