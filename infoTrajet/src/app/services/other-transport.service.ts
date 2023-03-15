@@ -9,7 +9,7 @@ export class OtherTransportService {
 
 
   // TODO toutes les mettre en variable d'env
-  private apiURL = "http://localhost:3000/api";
+  private apiURL = "https://info-802-tp-rest.vercel.app/";
 
   httpOptions = {
     headers: new HttpHeaders({
