@@ -89,9 +89,11 @@ export class MapComponent {
 
     this.findWaypoints().then((result: any) => {
       this.waypoints.push(L.latLng(trajet.depart.lat, trajet.depart.lon))
-      result.forEach((ele: { lat: number; lng: number; }) => {
-        this.waypoints.push(L.latLng(ele.lat, ele.lng))
-      });
+      if(result.length != 0) {
+        result.forEach((ele: { lat: number; lng: number; }) => {
+          this.waypoints.push(L.latLng(ele.lat, ele.lng))
+        });
+      }
       this.waypoints.push(L.latLng(trajet.arrivee.lat, trajet.arrivee.lon))
 
       this.itineraire.setWaypoints(this.waypoints)
