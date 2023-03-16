@@ -14,6 +14,7 @@ import { OtherTransportService } from 'src/app/services/other-transport.service'
 export class MapComponent {
 
   private map!: L.Map;
+  // 15KM
   private distanceABorneEnM: number = 15000;
   private itineraire!: L.Routing.Control;
   private waypoints: any[] = [];
